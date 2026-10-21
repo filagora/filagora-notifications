@@ -1,0 +1,2 @@
+providers:
+  - Filagora\Notifications\NotificationsServiceProvider

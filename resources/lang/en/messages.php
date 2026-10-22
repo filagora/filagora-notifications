@@ -14,4 +14,9 @@ return [
         'moderation_own_content' => 'Moderation of your own posts',
         'private_message_contactability' => 'Allow others to send you private messages',
     ],
+    'unsubscribed' => [
+        'title' => 'Email preferences updated',
+        'message' => 'You will no longer receive emails for: :label.',
+        'manage' => 'Manage your notification preferences',
+    ],
 ];

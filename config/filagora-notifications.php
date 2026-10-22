@@ -27,4 +27,53 @@ return [
     */
     'register_standard' => true,
 
+    /*
+    |--------------------------------------------------------------------------
+    | Suppression
+    |--------------------------------------------------------------------------
+    |
+    | The default `EmailSuppression` stops optional mail to a person whose `receives_email`
+    | attribute is false or whose address status is one of those listed. An attribute the user
+    | model does not have never suppresses. Set a name to null to ignore that attribute.
+    |
+    */
+    'suppression' => [
+        'receives_email_attribute' => 'receives_email',
+        'status_attribute' => 'email_status',
+        'suppressed_statuses' => ['bounced', 'complained'],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Unsubscribe routes
+    |--------------------------------------------------------------------------
+    |
+    | Off by default. When on, the package serves the signed links a mail carries:
+    | `GET {prefix}/unsubscribe/{user}/{category}` (a page) and `POST .../one-click` (for mail
+    | clients). They sit outside the web group, so there is no session or CSRF token; the
+    | signature is the authority. The default prefix keeps the paths an existing site has sent.
+    |
+    */
+    'routes' => [
+        'enabled' => false,
+        'prefix' => 'email-preferences',
+        'middleware' => ['throttle:60,1'],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Unsubscribe links
+    |--------------------------------------------------------------------------
+    |
+    | `signed_ttl`: minutes a link stays valid, or null for links that never expire (as on the
+    | site the package was extracted from). `view`: the page shown after a link is followed; it
+    | receives `label` and `manageUrl`. `manage_url`: where "manage your preferences" goes.
+    |
+    */
+    'unsubscribe' => [
+        'signed_ttl' => null,
+        'view' => 'filagora-notifications::unsubscribed',
+        'manage_url' => null,
+    ],
+
 ];

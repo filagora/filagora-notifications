@@ -10,6 +10,7 @@ use Filagora\Notifications\Exceptions\InvalidPreference;
 use Filagora\Notifications\Models\NotificationPreference;
 use Filagora\Notifications\NotificationCategories;
 use Filagora\Notifications\Services\Preferences;
+use Filagora\Notifications\Suppression\AttributeSuppression;
 use Filagora\Notifications\Tests\Support\TestUser;
 use Illuminate\Contracts\Queue\Job;
 use Illuminate\Queue\Events\JobProcessing;
@@ -71,7 +72,7 @@ it('reads the standard contactability default from the category resolver, and a 
         'Contactable',
         defaultResolver: fn ($user) => $user->name === 'Open',
     ));
-    $service = new Preferences($categories);
+    $service = new Preferences($categories, new AttributeSuppression);
     $open = TestUser::make('Open');
     $closed = TestUser::make('Closed');
 
@@ -191,7 +192,7 @@ it('builds the matrix a settings page draws', function () {
 it('falls back to the category default, even when that default is off, for a word it cannot read', function () {
     $categories = new NotificationCategories;
     $categories->register(new Category('x.optin', 'Opt in', [Channel::EMAIL], defaults: ['email' => false]));
-    $service = new Preferences($categories);
+    $service = new Preferences($categories, new AttributeSuppression);
     $user = TestUser::make();
 
     NotificationPreference::create(['user_id' => $user->id, 'preference_key' => 'x.optin', 'channel' => 'email', 'value' => 'maybe']);

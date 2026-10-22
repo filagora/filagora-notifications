@@ -23,7 +23,19 @@ packages ask. Requires [`filagora/filagora-core`](https://github.com/filagora/fi
   `mode()`, `set()`, `setMode()`, and `matrix($user)` for a settings page. A category is on unless it
   says otherwise (or its `defaultResolver` answers per person). A person's rows are read once per
   instance and forgotten at every queue job. `PreferenceChanged` fires when a stored value changes.
-- More follows: suppression, unsubscribe links, and the bridges to push and forums.
+- **Suppresses mail.** `Preferences::canDeliver($user, 'forum.mention')` is the one question to ask
+  before optional mail, a push or a bell entry: the person's choice, and for email no suppression.
+  `EmailSuppression` decides suppression; the default stops a person whose `receives_email` is
+  false or whose `email_status` is `bounced` or `complained` (names in config, and a model without
+  those attributes is never suppressed). Bind your own to add rules. Required mail (verification,
+  password reset, security notices) does not ask.
+- **Unsubscribes by signed link.** `Unsubscribe::url()` and `oneClickUrl()` build the links,
+  `decorate($mailMessage, $user, $category)` adds the `List-Unsubscribe` headers, and only a
+  category registered with `unsubscribable: true` can be switched off this way, on email only. Turn
+  on `routes.enabled` to serve the page and the one-click POST; they live outside the web group (no
+  session or CSRF token; the signature decides) and keep the path `email-preferences/unsubscribe/{user}/{category}`,
+  so links a site has already mailed keep working. Replace the page with `unsubscribe.view`.
+- More follows: the bridges to push and forums.
 
 ## Install
 

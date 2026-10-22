@@ -49,6 +49,7 @@ abstract class TestCase extends Orchestra
     {
         $app['config']->set('filagora.user_model', TestUser::class);
         $app['config']->set('auth.providers.users.model', TestUser::class);
+        $app['config']->set('filagora-notifications.routes.enabled', true);
         $app['config']->set('app.key', 'base64:'.base64_encode(str_repeat('k', 32)));
     }
 }

@@ -13,8 +13,17 @@ packages ask. Requires [`filagora/filagora-core`](https://github.com/filagora/fi
 - **Stores choices.** One row per person, category and channel in `user_notification_preferences`
   (`NotificationPreference`). No row means the category's default. The table has the shape of the
   site the package was extracted from, so an existing site can adopt it with `filagora:adopt`.
-- More follows: the category registry and `Preferences` service, suppression, unsubscribe links,
-  and the bridges to push and forums.
+- **Registers categories.** `NotificationCategories::register(new Category(...))` adds a kind of
+  notification: its id (stored for good, so never rename one), a label, the channels it can reach,
+  per-channel defaults, whether a mailed link may switch it off, or a set of modes (such as
+  `instant`, `daily`, `weekly`). The first registration of an id wins, so a host's own beats a
+  package's. The mentions, private messages, thread updates, digest, moderation and
+  private-message-contactability categories are registered for you (`register_standard`).
+- **Answers and records choices.** `Preferences::allows($user, 'forum.mention', NotificationChannel::PUSH)`,
+  `mode()`, `set()`, `setMode()`, and `matrix($user)` for a settings page. A category is on unless it
+  says otherwise (or its `defaultResolver` answers per person). A person's rows are read once per
+  instance and forgotten at every queue job. `PreferenceChanged` fires when a stored value changes.
+- More follows: suppression, unsubscribe links, and the bridges to push and forums.
 
 ## Install
 

@@ -8,6 +8,9 @@ use Filagora\Core\Modules\Module;
 use Filagora\Core\Modules\ModuleRegistry;
 use Filagora\Core\Schema\PackageSchema;
 use Filagora\Core\Schema\SchemaRegistry;
+use Filagora\Notifications\Services\Preferences;
+use Illuminate\Queue\Events\JobProcessing;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 class NotificationsServiceProvider extends ServiceProvider
@@ -15,6 +18,9 @@ class NotificationsServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__.'/../config/filagora-notifications.php', 'filagora-notifications');
+
+        $this->app->singleton(NotificationCategories::class);
+        $this->app->singleton(Preferences::class);
     }
 
     public function boot(): void
@@ -26,6 +32,13 @@ class NotificationsServiceProvider extends ServiceProvider
         $this->app->make(SchemaRegistry::class)->register(
             PackageSchema::fromFile('notifications', __DIR__.'/../database/schema.php', __DIR__.'/../database/migrations'),
         );
+
+        if (config('filagora-notifications.register_standard', true)) {
+            StandardCategories::register($this->app->make(NotificationCategories::class));
+        }
+
+        // A queue worker lives across jobs, so what one job read must not answer for the next.
+        Event::listen(JobProcessing::class, fn () => $this->app->make(Preferences::class)->flush());
 
         $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'filagora-notifications');
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'filagora-notifications');

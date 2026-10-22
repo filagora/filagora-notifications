@@ -16,6 +16,7 @@
         "php": "^8.4"
     },
     "require-dev": {
+        "filagora/filagora-entitlements": "^0.2.2",
         "filagora/filagora-forums": "^0.6",
         "filagora/filagora-messages": "^0.2",
         "filagora/filagora-push": "^0.1",
@@ -56,6 +57,7 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "suggest": {
+        "filagora/filagora-entitlements": "Declares the staff ability to see a person's stored choices, so it can be granted in the entitlements screens.",
         "filagora/filagora-forums": "Bridges thread subscription delivery to the person's choices.",
         "filagora/filagora-messages": "Bridges who may be messaged to the person's choice.",
         "filagora/filagora-push": "Bridges push alerts to the person's choices."

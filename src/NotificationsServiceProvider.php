@@ -6,8 +6,12 @@ namespace Filagora\Notifications;
 
 use Filagora\Core\Modules\Module;
 use Filagora\Core\Modules\ModuleRegistry;
+use Filagora\Core\Privacy\PrivacyContributorRegistry;
 use Filagora\Core\Schema\PackageSchema;
 use Filagora\Core\Schema\SchemaRegistry;
+use Filagora\Core\Support\GateAbilities;
+use Filagora\Entitlements\Registry\Definition;
+use Filagora\Entitlements\Registry\EntitlementRegistry;
 use Filagora\Forums\Contracts\SubscriptionPreferences;
 use Filagora\Forums\Subscriptions\UserAttributePreferences;
 use Filagora\Messages\Contracts\MessagingPolicy;
@@ -16,6 +20,7 @@ use Filagora\Notifications\Bridges\ForumsBridge;
 use Filagora\Notifications\Bridges\MessagesBridge;
 use Filagora\Notifications\Bridges\PushBridge;
 use Filagora\Notifications\Contracts\EmailSuppression;
+use Filagora\Notifications\Privacy\NotificationPreferencesContributor;
 use Filagora\Notifications\Services\Preferences;
 use Filagora\Notifications\Services\Unsubscribe;
 use Filagora\Notifications\Suppression\AttributeSuppression;
@@ -52,6 +57,10 @@ class NotificationsServiceProvider extends ServiceProvider
             PackageSchema::fromFile('notifications', __DIR__.'/../database/schema.php', __DIR__.'/../database/migrations'),
         );
 
+        GateAbilities::define('filagora-notifications.gates');
+        $this->app->make(PrivacyContributorRegistry::class)->register(new NotificationPreferencesContributor);
+        $this->declareEntitlements();
+
         if (config('filagora-notifications.register_standard', true)) {
             StandardCategories::register($this->app->make(NotificationCategories::class));
         }
@@ -77,6 +86,23 @@ class NotificationsServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/../database/migrations' => database_path('migrations'),
             ], 'filagora-notifications-migrations');
+        }
+    }
+
+    /**
+     * With the entitlements package installed, the staff ability appears in its definitions list,
+     * so it can be granted in the entitlements screens.
+     */
+    private function declareEntitlements(): void
+    {
+        if (! class_exists(EntitlementRegistry::class)) {
+            return;
+        }
+
+        $registry = $this->app->make(EntitlementRegistry::class);
+
+        foreach (GateAbilities::keys('filagora-notifications.gates') as $entitlement) {
+            $registry->define(new Definition($entitlement, wildcardChildren: false));
         }
     }
 

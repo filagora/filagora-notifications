@@ -8,6 +8,14 @@ packages ask. Requires [`filagora/filagora-core`](https://github.com/filagora/fi
 > The package is at `0.x` and under construction: the API may change between minor versions.
 > There is no settings screen: `Preferences::matrix()` and `set()` give your page what it needs.
 
+## What it does
+
+- **Stores choices.** One row per person, category and channel in `user_notification_preferences`
+  (`NotificationPreference`). No row means the category's default. The table has the shape of the
+  site the package was extracted from, so an existing site can adopt it with `filagora:adopt`.
+- More follows: the category registry and `Preferences` service, suppression, unsubscribe links,
+  and the bridges to push and forums.
+
 ## Install
 
 ```bash

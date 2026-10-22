@@ -7,6 +7,9 @@ use Filagora\Forums\Enums\DeliveryMode;
 use Filagora\Forums\Services\Subscriptions;
 use Filagora\Forums\Subscriptions\UserAttributePreferences;
 use Filagora\Messages\Contracts\MessagingPolicy;
+use Filagora\Messages\Exceptions\MessageRefused;
+use Filagora\Messages\Models\PrivateConversation;
+use Filagora\Messages\Services\IgnoredUsers;
 use Filagora\Messages\Services\Messages;
 use Filagora\Notifications\Bridges\ForumsBridge;
 use Filagora\Notifications\Bridges\MessagesBridge;
@@ -159,4 +162,21 @@ it('delivers at once when a host\'s own frequency word is not one forums knows',
     $bridge = new ForumsBridge($preferences, new UserAttributePreferences);
 
     expect($bridge->deliveryMode(TestUser::make()))->toBe(DeliveryMode::INSTANT);
+});
+
+it('works with the ignore lists: a send is refused for someone who switched messages off or who ignores the sender', function () {
+    [$sender, $closed, $ignoring, $open] = [TestUser::make('Sender'), TestUser::make('Closed'), TestUser::make('Ignoring'), TestUser::make('Open')];
+    chooses($closed, 'messages.private_message_contactability', Channel::EMAIL, false);
+    app(IgnoredUsers::class)->ignore($ignoring, $sender);
+
+    $blocked = null;
+
+    try {
+        app(Messages::class)->send($sender, [$closed, $ignoring, $open], 'Hi', 'Hello');
+    } catch (MessageRefused $refused) {
+        $blocked = $refused->blocked;
+    }
+
+    expect($blocked)->toEqualCanonicalizing([$closed->id, $ignoring->id])
+        ->and(app(Messages::class)->send($sender, [$open], 'Hi', 'Hello'))->toBeInstanceOf(PrivateConversation::class);
 });

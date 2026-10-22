@@ -162,3 +162,20 @@ it('uses the host\'s own view when one is configured', function () {
 
     unlink(sys_get_temp_dir().'/gone.blade.php');
 });
+
+it('refuses a mode category even when it is flagged unsubscribable', function () {
+    app(NotificationCategories::class)->register(new Category('x.mode', 'A mode', modes: ['a', 'b'], defaultMode: 'a', unsubscribable: true));
+    $user = TestUser::make();
+
+    expect(fn () => unsubscribe()->url($user, 'x.mode'))->toThrow(InvalidPreference::class);
+
+    $this->get(URL::signedRoute(Unsubscribe::PAGE_ROUTE, ['user' => $user->id, 'category' => 'x.mode']))->assertNotFound();
+});
+
+it('ships with the routes off and links that never expire', function () {
+    $config = require __DIR__.'/../../config/filagora-notifications.php';
+
+    expect($config['routes']['enabled'])->toBeFalse()
+        ->and($config['unsubscribe']['signed_ttl'])->toBeNull()
+        ->and($config['routes']['prefix'])->toBe('email-preferences');
+});

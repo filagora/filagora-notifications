@@ -5,13 +5,17 @@ declare(strict_types=1);
 use Filagora\Forums\Contracts\SubscriptionPreferences;
 use Filagora\Forums\Enums\DeliveryMode;
 use Filagora\Forums\Services\Subscriptions;
+use Filagora\Forums\Subscriptions\UserAttributePreferences;
 use Filagora\Messages\Contracts\MessagingPolicy;
 use Filagora\Messages\Services\Messages;
 use Filagora\Notifications\Bridges\ForumsBridge;
 use Filagora\Notifications\Bridges\MessagesBridge;
 use Filagora\Notifications\Bridges\PushBridge;
+use Filagora\Notifications\Category;
 use Filagora\Notifications\Enums\NotificationChannel as Channel;
+use Filagora\Notifications\NotificationCategories;
 use Filagora\Notifications\Services\Preferences;
+use Filagora\Notifications\Suppression\AttributeSuppression;
 use Filagora\Notifications\Tests\Support\TestUser;
 use Filagora\Push\Contracts\PushPreferences;
 use Filagora\Push\Enums\PushCategory;
@@ -145,4 +149,14 @@ it('does not ask who is sending, only who receives', function () {
     chooses($recipient, 'messages.private_message_contactability', Channel::EMAIL, false);
 
     expect(app(MessagingPolicy::class)->canMessage($recipient, $recipient))->toBeFalse();
+});
+
+it('delivers at once when a host\'s own frequency word is not one forums knows', function () {
+    $categories = new NotificationCategories;
+    $categories->register(new Category('forum.thread_updates_digest_frequency', 'Frequency', modes: ['monthly'], defaultMode: 'monthly'));
+    $categories->register(new Category('forum.thread_updates_instant', 'Instant'));
+    $preferences = new Preferences($categories, new AttributeSuppression);
+    $bridge = new ForumsBridge($preferences, new UserAttributePreferences);
+
+    expect($bridge->deliveryMode(TestUser::make()))->toBe(DeliveryMode::INSTANT);
 });

@@ -29,6 +29,35 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Contactability default
+    |--------------------------------------------------------------------------
+    |
+    | Until a person chooses, whether they can be sent private messages comes from this attribute
+    | of the user model (on when it is missing or null). Set to null for "always on".
+    |
+    */
+    'standard' => [
+        'contactability_attribute' => 'allow_private_messages',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Bridges
+    |--------------------------------------------------------------------------
+    |
+    | When the sibling package is installed, answer its preference question from the person's
+    | choices here. Each applies only while the sibling's own default is still the bound one, so a
+    | host's own binding always wins. Turn one off to keep the sibling's default.
+    |
+    */
+    'bridges' => [
+        'push' => true,
+        'forums' => true,
+        'messages' => true,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Suppression
     |--------------------------------------------------------------------------
     |

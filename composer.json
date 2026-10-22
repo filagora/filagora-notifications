@@ -3,13 +3,22 @@
     "description": "Notification preferences for Filagora: per-person, per-category, per-channel choices, a category registry, suppression, signed unsubscribe, and bridges to push and forums.",
     "type": "library",
     "license": "MIT",
-    "keywords": ["laravel", "filament", "filagora", "notifications", "preferences"],
+    "keywords": [
+        "laravel",
+        "filament",
+        "filagora",
+        "notifications",
+        "preferences"
+    ],
     "require": {
         "filagora/filagora-core": "^0.2.2",
         "filament/filament": "^5.0",
         "php": "^8.4"
     },
     "require-dev": {
+        "filagora/filagora-forums": "^0.6",
+        "filagora/filagora-messages": "^0.2",
+        "filagora/filagora-push": "^0.1",
         "larastan/larastan": "^3.0",
         "laravel/pint": "^1.0",
         "orchestra/testbench": "^11.0",
@@ -45,5 +54,10 @@
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "suggest": {
+        "filagora/filagora-forums": "Bridges thread subscription delivery to the person's choices.",
+        "filagora/filagora-messages": "Bridges who may be messaged to the person's choice.",
+        "filagora/filagora-push": "Bridges push alerts to the person's choices."
+    }
 }

@@ -187,3 +187,21 @@ it('builds the matrix a settings page draws', function () {
         ->and($matrix['forum.thread_updates_digest']['channels'])->toBe(['email' => true])
         ->and($matrix['forum.thread_updates_digest_frequency'])->toMatchArray(['channels' => [], 'mode' => 'daily']);
 });
+
+it('falls back to the category default, even when that default is off, for a word it cannot read', function () {
+    $categories = new NotificationCategories;
+    $categories->register(new Category('x.optin', 'Opt in', [Channel::EMAIL], defaults: ['email' => false]));
+    $service = new Preferences($categories);
+    $user = TestUser::make();
+
+    NotificationPreference::create(['user_id' => $user->id, 'preference_key' => 'x.optin', 'channel' => 'email', 'value' => 'maybe']);
+
+    expect($service->allows($user, 'x.optin'))->toBeFalse();
+});
+
+it('answers no for a channel a category does not support, whatever a stray row says', function () {
+    $user = TestUser::make();
+    NotificationPreference::create(['user_id' => $user->id, 'preference_key' => 'forum.thread_updates_digest', 'channel' => 'push', 'value' => '1']);
+
+    expect(preferences()->allows($user, 'forum.thread_updates_digest', Channel::PUSH))->toBeFalse();
+});

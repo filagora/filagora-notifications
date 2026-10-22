@@ -71,4 +71,9 @@ it('answers a default per person when a resolver is given, and never for a chann
     expect($category->defaultFor($user, Channel::PUSH))->toBeTrue()
         ->and($category->defaultFor($user, Channel::EMAIL))->toBeFalse()
         ->and($category->defaultFor($user, Channel::IN_APP))->toBeFalse();
+
+    $plain = new Category('x.z', 'Z', [Channel::EMAIL]);
+
+    expect($plain->defaultFor($user, Channel::EMAIL))->toBeTrue()
+        ->and($plain->defaultFor($user, Channel::PUSH))->toBeFalse();
 });

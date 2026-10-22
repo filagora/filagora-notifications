@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Filagora\Notifications\Services;
 
 use Filagora\Notifications\Category;
+use Filagora\Notifications\Contracts\EmailSuppression;
 use Filagora\Notifications\Enums\NotificationChannel;
 use Filagora\Notifications\Enums\PreferenceSource;
 use Filagora\Notifications\Events\PreferenceChanged;
@@ -27,7 +28,10 @@ class Preferences
      */
     private array $rows = [];
 
-    public function __construct(private readonly NotificationCategories $categories) {}
+    public function __construct(
+        private readonly NotificationCategories $categories,
+        private readonly EmailSuppression $suppression,
+    ) {}
 
     public function flush(): void
     {
@@ -51,6 +55,27 @@ class Preferences
         return $stored === null
             ? $category->defaultFor($user, $channel)
             : $this->toBool($stored, $category->defaultFor($user, $channel));
+    }
+
+    /**
+     * Whether optional mail to this person must stop altogether (see `EmailSuppression`).
+     */
+    public function isSuppressed(Authenticatable $user): bool
+    {
+        return $this->suppression->isSuppressed($user);
+    }
+
+    /**
+     * The one question to ask before sending optional mail, a push or a bell entry: the person
+     * wants this category on this channel and, for email, is not suppressed.
+     */
+    public function canDeliver(Authenticatable $user, Category|string $category, NotificationChannel $channel = NotificationChannel::EMAIL): bool
+    {
+        if ($channel === NotificationChannel::EMAIL && $this->isSuppressed($user)) {
+            return false;
+        }
+
+        return $this->allows($user, $category, $channel);
     }
 
     /**

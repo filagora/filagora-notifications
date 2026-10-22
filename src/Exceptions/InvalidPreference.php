@@ -22,6 +22,11 @@ class InvalidPreference extends InvalidArgumentException
         return new self("The category [{$id}] cannot be delivered on the [{$channel->value}] channel.");
     }
 
+    public static function notUnsubscribable(string $id): self
+    {
+        return new self("The category [{$id}] cannot be switched off by an unsubscribe link.");
+    }
+
     public static function notASwitch(string $id): self
     {
         return new self("The category [{$id}] holds a mode, not a switch.");

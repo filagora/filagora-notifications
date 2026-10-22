@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Filagora\Notifications;
 
 use Filagora\Notifications\Enums\NotificationChannel as Channel;
+use Illuminate\Contracts\Auth\Authenticatable;
 
 /**
  * The categories the Filagora packages talk about, under the ids a site stores. They are
@@ -45,6 +46,15 @@ final class StandardCategories
             defaultMode: 'instant',
         ));
         $categories->register(new Category(self::MODERATION_OWN_CONTENT, 'filagora-notifications::messages.categories.moderation_own_content', $everywhere));
-        $categories->register(new Category(self::PRIVATE_MESSAGE_CONTACTABILITY, 'filagora-notifications::messages.categories.private_message_contactability'));
+        $categories->register(new Category(
+            self::PRIVATE_MESSAGE_CONTACTABILITY,
+            'filagora-notifications::messages.categories.private_message_contactability',
+            defaultResolver: static function (Authenticatable $user): bool {
+                $attribute = config('filagora-notifications.standard.contactability_attribute');
+                $value = is_string($attribute) && $attribute !== '' ? data_get($user, $attribute) : null;
+
+                return $value === null ? true : (bool) $value;
+            },
+        ));
     }
 }

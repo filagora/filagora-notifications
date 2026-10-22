@@ -35,7 +35,13 @@ packages ask. Requires [`filagora/filagora-core`](https://github.com/filagora/fi
   on `routes.enabled` to serve the page and the one-click POST; they live outside the web group (no
   session or CSRF token; the signature decides) and keep the path `email-preferences/unsubscribe/{user}/{category}`,
   so links a site has already mailed keep working. Replace the page with `unsubscribe.view`.
-- More follows: the bridges to push and forums.
+- **Bridges the siblings.** With `filagora-push`, `filagora-forums` and `filagora-messages`
+  installed, their preference questions are answered from the person's choices: which push alerts
+  (push channel), how and whether followed-thread updates arrive (the frequency and the matching
+  kind of mail; nothing for a suppressed person), and whether a person can be sent private messages.
+  A bridge applies only while the sibling's own default is still bound, so your own binding wins,
+  and `bridges.push|forums|messages` switch each off. Whether posting follows a thread stays a user
+  attribute, which forums reads itself.
 
 ## Install
 

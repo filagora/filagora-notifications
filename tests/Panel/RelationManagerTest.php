@@ -66,10 +66,21 @@ it('shows a category by its label and a channel by its name, and what was chosen
 });
 
 it('shows an id nobody registered as it is', function () {
-    NotificationPreference::create(['user_id' => $this->member->id, 'preference_key' => 'old.removed_category', 'channel' => 'email', 'value' => '1']);
+    $row = NotificationPreference::create(['user_id' => $this->member->id, 'preference_key' => 'old.removed_category', 'channel' => 'email', 'value' => '1']);
 
-    preferencesManagerFor($this->member)->assertSee('old.removed_category')->assertSee('On');
+    preferencesManagerFor($this->member)->assertSee('old.removed_category')->assertTableColumnFormattedStateSet('preference_key', 'old.removed_category', $row);
 });
+
+it('words each kind of stored value', function (?string $stored, string $shown) {
+    $row = NotificationPreference::create(['user_id' => $this->member->id, 'preference_key' => 'forum.mention', 'channel' => 'email', 'value' => $stored]);
+
+    preferencesManagerFor($this->member)->assertTableColumnFormattedStateSet('value', $shown, $row);
+})->with([
+    'on' => ['1', 'On'],
+    'off' => ['0', 'Off'],
+    'a mode word' => ['daily', 'daily'],
+    'nothing' => [null, '-'],
+]);
 
 it('names who changed a choice', function () {
     app(Preferences::class)->set($this->member, 'forum.mention', Channel::EMAIL, false, $this->staff);

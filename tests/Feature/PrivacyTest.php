@@ -67,3 +67,12 @@ it('keeps a choice staff made for someone else but forgets who made it, when the
         ->and($row->value)->toBe('0')
         ->and($row->updated_by_user_id)->toBeNull();
 });
+
+it('lists choices in category then channel order, whatever order they were made in', function () {
+    $alice = TestUser::make('Alice');
+    app(Preferences::class)->set($alice, 'forum.mention', Channel::PUSH, false);
+    app(Preferences::class)->set($alice, 'forum.mention', Channel::EMAIL, false);
+    app(Preferences::class)->set($alice, 'forum.mention', Channel::IN_APP, false);
+
+    expect(array_column($this->contributor->export($alice)['preferences'], 'channel'))->toBe(['email', 'in_app', 'push']);
+});

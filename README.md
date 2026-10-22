@@ -5,7 +5,7 @@ Notification preferences for Filagora: what each person wants to hear about, on 
 signed and one-click unsubscribe links, and bridges that answer the questions the push and forums
 packages ask. Requires [`filagora/filagora-core`](https://github.com/filagora/filagora-core).
 
-> The package is at `0.x` and under construction: the API may change between minor versions.
+> The package is at `0.1`: the API may change between `0.x` minor versions.
 > There is no settings screen: `Preferences::matrix()` and `set()` give your page what it needs.
 
 ## What it does

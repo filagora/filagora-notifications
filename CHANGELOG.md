@@ -5,6 +5,10 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-22
+
+First release.
+
 ### Added
 
 - The `user_notification_preferences` table (one row per person, category and channel), its migration, schema snapshot for `filagora:adopt`, the `NotificationPreference` model, and the `NotificationChannel` and `PreferenceSource` enums.
@@ -16,3 +20,12 @@ All notable changes to this package are documented here. The format follows
 - The private-message contactability default reads the user model's `allow_private_messages` (configurable), on when missing, until a person chooses.
 - A read-only relation manager for the user screen (`UserNotificationPreferencesRelationManager`, with the `HasNotificationPreferences` trait for the user model): the choices a person has stored, by category label and channel name, filterable by channel and source, shown to people holding the `filagora.notifications.view` ability (`gates` config; declared in the entitlement definitions when `filagora-entitlements` is installed).
 - A privacy contributor (`notifications`): the export lists a person's stored choices; erasure removes them and keeps, without the link to the erased staff member, choices that member changed for others. There is no retention rule.
+
+### Differences from the site this was extracted from
+
+- Categories are a registry, not a fixed enum: the pushes and the bell are derived from which channels a category supports instead of hard-coded lists. The stored ids are unchanged.
+- Asking about an unregistered category, a channel it does not support, or a switch as a mode (or the reverse) throws `InvalidPreference`; the site answered "on" for an unknown id.
+- A suppressed person (`receives_email` false, or a bounced or complained address) is stopped by `EmailSuppression`; the site's extra rule (an entitlement that the inactive-subscriber command revokes) is left to the host, which binds its own `EmailSuppression`.
+- Unsubscribe links keep the site's paths but sit outside the web group, and are off until `routes.enabled` is set.
+- The digest frequency is read from its preference row only; the site also kept it in a user column, which the host keeps in sync from `PreferenceChanged`.
+- Choices are not audited (the site recorded an audit entry for each change); the audit log is a separate, future package.

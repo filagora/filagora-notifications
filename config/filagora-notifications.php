@@ -15,4 +15,16 @@ return [
     */
     'navigation_group' => env('FILAGORA_NOTIFICATIONS_NAVIGATION_GROUP', 'Notifications'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Standard categories
+    |--------------------------------------------------------------------------
+    |
+    | Register the categories the Filagora packages use (mentions, private messages, thread
+    | updates and their digest, moderation of your own posts, private-message contactability).
+    | Turn off to register only your own.
+    |
+    */
+    'register_standard' => true,
+
 ];

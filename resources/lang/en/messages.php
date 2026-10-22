@@ -14,6 +14,18 @@ return [
         'moderation_own_content' => 'Moderation of your own posts',
         'private_message_contactability' => 'Allow others to send you private messages',
     ],
+    'relation_manager' => [
+        'title' => 'Notification choices',
+        'description' => 'Choices this person (or an import, or staff) has made. A category with no row is on its default.',
+        'category' => 'Category',
+        'channel' => 'Channel',
+        'value' => 'Choice',
+        'source' => 'Set by',
+        'changed_by' => 'Changed by',
+        'on' => 'On',
+        'off' => 'Off',
+    ],
+
     'unsubscribed' => [
         'title' => 'Email preferences updated',
         'message' => 'You will no longer receive emails for: :label.',

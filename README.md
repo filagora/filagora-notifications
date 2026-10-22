@@ -43,6 +43,13 @@ packages ask. Requires [`filagora/filagora-core`](https://github.com/filagora/fi
   and `bridges.push|forums|messages` switch each off. Whether posting follows a thread stays a user
   attribute, which forums reads itself.
 
+- **Shows staff what a person chose.** Add the `HasNotificationPreferences` trait to your user
+  model and `UserNotificationPreferencesRelationManager::class` to your user resource's relations.
+  It lists the stored choices, read-only (a category with no row is on its default), for people
+  holding `filagora.notifications.view`; remap that key in the `gates` config.
+- **Exports and erases.** The privacy contributor adds a person's stored choices to their data
+  export and removes them on erasure.
+
 ## Install
 
 ```bash
@@ -50,8 +57,8 @@ composer require filagora/filagora-notifications
 php artisan vendor:publish --tag=filagora-notifications-config
 ```
 
-Register the plugin on a Filament panel (it adds a read-only list of a person's stored choices
-to the user resource):
+Register the plugin on a Filament panel (it registers nothing of its own yet; the relation manager
+above is added to your own user resource):
 
 ```php
 ->plugin(\Filagora\Notifications\NotificationsPlugin::make())

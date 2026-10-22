@@ -7,6 +7,7 @@ namespace Filagora\Notifications\Tests;
 use BladeUI\Heroicons\BladeHeroiconsServiceProvider;
 use BladeUI\Icons\BladeIconsServiceProvider;
 use Filagora\Core\CoreServiceProvider;
+use Filagora\Entitlements\EntitlementsServiceProvider;
 use Filagora\Notifications\NotificationsServiceProvider;
 use Filagora\Notifications\Tests\Support\TestSupportServiceProvider;
 use Filagora\Notifications\Tests\Support\TestUser;
@@ -40,6 +41,7 @@ abstract class TestCase extends Orchestra
             TablesServiceProvider::class,
             WidgetsServiceProvider::class,
             CoreServiceProvider::class,
+            EntitlementsServiceProvider::class,
             NotificationsServiceProvider::class,
             TestSupportServiceProvider::class,
         ];

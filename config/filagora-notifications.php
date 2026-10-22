@@ -58,6 +58,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Gates
+    |--------------------------------------------------------------------------
+    |
+    | Gate abilities guarding the screens, each mapped to the entitlement key that grants it.
+    | `view` shows a person's stored choices on the user screen. Remap the key to your own.
+    |
+    */
+    'gates' => [
+        'filagora.notifications.view' => 'filagora.notifications.view',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Suppression
     |--------------------------------------------------------------------------
     |

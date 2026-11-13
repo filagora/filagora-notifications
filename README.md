@@ -10,6 +10,30 @@ packages ask. Requires [`filagora/filagora-core`](https://github.com/filagora/fi
 
 ## What it provides
 
+### Overview
+
+Notification preferences for Filagora: per-person, per-category, per-channel choices, a category registry, suppression, signed unsubscribe, and bridges to push and forums.
+
+### Tables
+
+`user_notification_preferences`, prefixed `filagora_` by default. A site that already has them can run `php artisan filagora:adopt` instead of migrating.
+
+### Commands
+
+This package adds no commands.
+
+### Events
+
+- `PreferenceChanged`: A stored choice was written with a different value.
+
+### Access
+
+| Ability | Entitlement key |
+| --- | --- |
+| `filagora.notifications.view` | `filagora.notifications.view` |
+
+### Using it
+
 - **Stores choices.** One row per person, category and channel in `user_notification_preferences`
   (`NotificationPreference`). No row means the category's default. The table has the shape of the
   site the package was extracted from, so an existing site can adopt it with `filagora:adopt`.

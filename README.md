@@ -8,7 +8,7 @@ packages ask. Requires [`filagora/filagora-core`](https://github.com/filagora/fi
 > The package is at `0.1`: the API may change between `0.x` minor versions.
 > There is no settings screen: `Preferences::matrix()` and `set()` give your page what it needs.
 
-## What it does
+## What it provides
 
 - **Stores choices.** One row per person, category and channel in `user_notification_preferences`
   (`NotificationPreference`). No row means the category's default. The table has the shape of the
@@ -50,6 +50,10 @@ packages ask. Requires [`filagora/filagora-core`](https://github.com/filagora/fi
 - **Exports and erases.** The privacy contributor adds a person's stored choices to their data
   export and removes them on erasure.
 
+## Requirements
+
+PHP 8.4, Laravel 13 and Filament 5. Tested against MariaDB 11.4. Requires [`filagora/filagora-core`](https://github.com/filagora/filagora-core).
+
 ## Install
 
 ```bash
@@ -80,6 +84,15 @@ Extend through documented contracts, events and registries. Anything not documen
 composer test
 ```
 
-## License
+Tests run against a real MariaDB, never SQLite, so engine behaviour (FULLTEXT,
+`ONLY_FULL_GROUP_BY`, collation) matches production. Host and credentials come from
+your environment; the database is always named `testing`, never your development one.
 
-MIT.
+## Local development (DDEV)
+
+`.ddev/` is included. `ddev start` creates both `db` and `testing` (run `ddev restart` once
+if `testing` is missing), then `ddev exec vendor/bin/pest`.
+
+## Licence
+
+MIT. See [LICENSE](LICENSE).

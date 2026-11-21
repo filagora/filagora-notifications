@@ -37,6 +37,21 @@ class InvalidPreference extends InvalidArgumentException
         return new self("The category [{$id}] is a switch, not a mode.");
     }
 
+    public static function required(string $id): self
+    {
+        return new self("The category [{$id}] is required and cannot be switched off.");
+    }
+
+    public static function notAvailable(string $id): self
+    {
+        return new self("The category [{$id}] is not offered to this person.");
+    }
+
+    public static function notStaff(string $id): self
+    {
+        return new self("The category [{$id}] is not a staff category, so it has no audience.");
+    }
+
     public static function unknownMode(string $id, string $mode): self
     {
         return new self("[{$mode}] is not a mode of the category [{$id}].");

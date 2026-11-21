@@ -20,9 +20,12 @@ use Filagora\Notifications\Bridges\ForumsBridge;
 use Filagora\Notifications\Bridges\MessagesBridge;
 use Filagora\Notifications\Bridges\PushBridge;
 use Filagora\Notifications\Contracts\EmailSuppression;
+use Filagora\Notifications\Contracts\StaffAudience;
 use Filagora\Notifications\Privacy\NotificationPreferencesContributor;
 use Filagora\Notifications\Services\Preferences;
+use Filagora\Notifications\Services\Recipients;
 use Filagora\Notifications\Services\Unsubscribe;
+use Filagora\Notifications\Support\NoStaffAudience;
 use Filagora\Notifications\Suppression\AttributeSuppression;
 use Filagora\Push\Contracts\PushPreferences;
 use Filagora\Push\Preferences\AllowsAllPush;
@@ -39,7 +42,9 @@ class NotificationsServiceProvider extends ServiceProvider
 
         $this->app->singleton(NotificationCategories::class);
         $this->app->bindIf(EmailSuppression::class, AttributeSuppression::class);
+        $this->app->bindIf(StaffAudience::class, NoStaffAudience::class);
         $this->app->singleton(Preferences::class);
+        $this->app->singleton(Recipients::class);
         $this->app->singleton(Unsubscribe::class);
 
         $this->bridge('push', PushPreferences::class, AllowsAllPush::class, PushBridge::class);

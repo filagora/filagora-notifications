@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Filagora\Notifications\Services;
 
+use Filagora\Core\Contracts\AccessChecker;
 use Filagora\Notifications\Category;
 use Filagora\Notifications\Contracts\EmailSuppression;
 use Filagora\Notifications\Enums\NotificationChannel;
@@ -31,6 +32,7 @@ class Preferences
     public function __construct(
         private readonly NotificationCategories $categories,
         private readonly EmailSuppression $suppression,
+        private ?AccessChecker $access = null,
     ) {}
 
     public function flush(): void
@@ -50,11 +52,32 @@ class Preferences
             throw InvalidPreference::notASwitch($category->id);
         }
 
+        if ($category->isRequired()) {
+            return true;
+        }
+
+        if (! $this->isOfferedTo($user, $category)) {
+            return false;
+        }
+
         $stored = $this->stored($user, $category->id, $channel);
 
         return $stored === null
             ? $category->defaultFor($user, $channel)
             : $this->toBool($stored, $category->defaultFor($user, $channel));
+    }
+
+    /**
+     * Whether this person is offered the category at all: everyone is offered a user or required
+     * one, and a staff one only when they hold its access key.
+     */
+    public function isOfferedTo(Authenticatable $user, Category|string $category): bool
+    {
+        $category = $this->resolve($category);
+
+        $this->access ??= app(AccessChecker::class);
+
+        return ! $category->isStaff() || $this->access->allows($user, (string) $category->access);
     }
 
     /**
@@ -71,6 +94,13 @@ class Preferences
      */
     public function canDeliver(Authenticatable $user, Category|string $category, NotificationChannel $channel = NotificationChannel::EMAIL): bool
     {
+        $category = $this->resolve($category);
+
+        // Required mail (verification, security notices) does not ask: not even suppression stops it.
+        if ($category->isRequired()) {
+            return $category->supports($channel);
+        }
+
         if ($channel === NotificationChannel::EMAIL && $this->isSuppressed($user)) {
             return false;
         }
@@ -107,6 +137,7 @@ class Preferences
     ): void {
         $category = $this->resolve($category);
         $this->assertSupports($category, $channel);
+        $this->assertChangeable($user, $category);
 
         if ($category->isMode()) {
             throw InvalidPreference::notASwitch($category->id);
@@ -125,6 +156,7 @@ class Preferences
     ): void {
         $category = $this->resolve($category);
         $this->assertSupports($category, $channel);
+        $this->assertChangeable($user, $category);
 
         if (! $category->isMode()) {
             throw InvalidPreference::notAMode($category->id);
@@ -138,18 +170,24 @@ class Preferences
     }
 
     /**
-     * Everything a settings page needs: each category with the person's current answer on each
-     * channel it supports, or its current mode.
+     * Everything a settings page needs: each category offered to this person, with their current
+     * answer on each channel it supports, or its current mode. A required category is listed with
+     * `locked` true (always on, not a choice); a staff category appears only for people who hold
+     * its access key.
      *
-     * @return list<array{category: Category, channels: array<string, bool>, mode: string|null}>
+     * @return list<array{category: Category, channels: array<string, bool>, mode: string|null, locked: bool}>
      */
     public function matrix(Authenticatable $user): array
     {
         $matrix = [];
 
         foreach ($this->categories->all() as $category) {
+            if (! $this->isOfferedTo($user, $category)) {
+                continue;
+            }
+
             if ($category->isMode()) {
-                $matrix[] = ['category' => $category, 'channels' => [], 'mode' => $this->mode($user, $category, $category->channels[0])];
+                $matrix[] = ['category' => $category, 'channels' => [], 'mode' => $this->mode($user, $category, $category->channels[0]), 'locked' => false];
 
                 continue;
             }
@@ -159,7 +197,7 @@ class Preferences
                 $channels[$channel->value] = $this->allows($user, $category, $channel);
             }
 
-            $matrix[] = ['category' => $category, 'channels' => $channels, 'mode' => null];
+            $matrix[] = ['category' => $category, 'channels' => $channels, 'mode' => null, 'locked' => $category->isRequired()];
         }
 
         return $matrix;
@@ -168,6 +206,17 @@ class Preferences
     private function resolve(Category|string $category): Category
     {
         return $category instanceof Category ? $category : $this->categories->get($category);
+    }
+
+    private function assertChangeable(Authenticatable $user, Category $category): void
+    {
+        if ($category->isRequired()) {
+            throw InvalidPreference::required($category->id);
+        }
+
+        if (! $this->isOfferedTo($user, $category)) {
+            throw InvalidPreference::notAvailable($category->id);
+        }
     }
 
     private function assertSupports(Category $category, NotificationChannel $channel): void

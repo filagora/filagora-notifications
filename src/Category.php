@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Filagora\Notifications;
 
 use Closure;
+use Filagora\Notifications\Enums\CategoryKind;
 use Filagora\Notifications\Enums\NotificationChannel;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Lang;
+use InvalidArgumentException;
 
 /**
  * A kind of notification a person can choose about. The id is stored in preference rows and in
@@ -16,6 +18,10 @@ use Illuminate\Support\Facades\Lang;
  * A category is either a switch (on or off for each channel it supports) or a mode (one of a few
  * words, such as how often a digest is sent). A switch is on unless `defaults` says otherwise for
  * that channel, or `defaultResolver` answers for the person.
+ *
+ * A category is for everyone (`USER`), for people who hold an access key (`STAFF`: moderators and
+ * the like, who also get the alerts that would otherwise go to a shared address), or `REQUIRED`:
+ * always delivered, and not offered as a choice.
  */
 final readonly class Category
 {
@@ -27,6 +33,10 @@ final readonly class Category
      * @param  bool  $unsubscribable  whether a signed link in a mail may switch it off
      * @param  list<string>|null  $modes  the allowed words, for a mode category
      * @param  Closure(Authenticatable, NotificationChannel): bool|null  $defaultResolver  answers the default per person
+     * @param  CategoryKind  $kind  who it is for, and whether it can be switched off
+     * @param  string|null  $access  the access key a person needs to be offered a staff category
+     *
+     * @throws InvalidArgumentException When a staff category has no access key, or a required one is also a mode or unsubscribable.
      */
     public function __construct(
         public string $id,
@@ -37,7 +47,27 @@ final readonly class Category
         public ?array $modes = null,
         public ?string $defaultMode = null,
         public ?Closure $defaultResolver = null,
-    ) {}
+        public CategoryKind $kind = CategoryKind::USER,
+        public ?string $access = null,
+    ) {
+        if ($kind === CategoryKind::STAFF && trim((string) $access) === '') {
+            throw new InvalidArgumentException("The staff category [{$id}] needs an access key.");
+        }
+
+        if ($kind === CategoryKind::REQUIRED && ($unsubscribable || $modes !== null)) {
+            throw new InvalidArgumentException("The required category [{$id}] cannot be a mode or be switched off by a link.");
+        }
+    }
+
+    public function isStaff(): bool
+    {
+        return $this->kind === CategoryKind::STAFF;
+    }
+
+    public function isRequired(): bool
+    {
+        return $this->kind === CategoryKind::REQUIRED;
+    }
 
     public function label(): string
     {

@@ -5,6 +5,13 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Category kinds. A `Category` takes `kind` (`CategoryKind::USER`, the default and what every existing registration is, `STAFF` or `REQUIRED`) and, for staff, an `access` key. A staff category is offered, stored and delivered only to people who hold that key (`Preferences::isOfferedTo()`, checked through core's `AccessChecker`); a required category is always on, ignores email suppression, cannot be switched off (`InvalidPreference::required()`), and cannot also be a mode or unsubscribable.
+- `Preferences::matrix()` leaves out staff categories the person does not hold the key for, and each row has `locked` (true for a required category). Existing keys are unchanged.
+- `Recipients` and the `StaffAudience` contract: who to notify about a staff category. The host says who holds a key (access is answered one person at a time, so nothing else can list them); `Recipients::for()` and `byChannel()` keep only the people who want it on each channel, so a person who opted out never gets it. The default `NoStaffAudience` returns nobody.
+- Channels were already independent per category; a test now pins that any combination of email, push and bell can be on, and that all three off means nothing is delivered.
+
 ## [0.1.3] - 2026-11-14
 
 ### Changed

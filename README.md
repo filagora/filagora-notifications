@@ -43,6 +43,18 @@ This package adds no commands.
   `instant`, `daily`, `weekly`). The first registration of an id wins, so a host's own beats a
   package's. The mentions, private messages, thread updates, digest, moderation and
   private-message-contactability categories are registered for you (`register_standard`).
+- **Offers a category to everyone, to staff, or always.** A category's `kind` is `USER` (the
+  default: the person chooses), `STAFF` (with an `access` key: offered and delivered only to people
+  who hold it, so moderators see their alerts and no one else does) or `REQUIRED` (always
+  delivered, even to a suppressed address, and shown locked on a settings page; verification and
+  security notices). Channels are independent and add up: a person can have the bell and a push
+  and email on together, and all off means nothing is sent.
+- **Says who to notify about a staff category.** `Recipients::for($category, $channel)` and
+  `byChannel($category)` return the people who hold the category's access key and want it on that
+  channel. Access is answered one person at a time, so the host binds `StaffAudience::holding()`
+  to list who holds a key (the default lists no one); `Recipients` then drops anyone who switched
+  the category off on that channel, or whose email is suppressed. Send to those people instead of
+  a shared address.
 - **Answers and records choices.** `Preferences::allows($user, 'forum.mention', NotificationChannel::PUSH)`,
   `mode()`, `set()`, `setMode()`, and `matrix($user)` for a settings page. A category is on unless it
   says otherwise (or its `defaultResolver` answers per person). A person's rows are read once per

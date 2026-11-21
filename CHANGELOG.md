@@ -5,6 +5,8 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-21
+
 ### Added
 
 - Category kinds. A `Category` takes `kind` (`CategoryKind::USER`, the default and what every existing registration is, `STAFF` or `REQUIRED`) and, for staff, an `access` key. A staff category is offered, stored and delivered only to people who hold that key (`Preferences::isOfferedTo()`, checked through core's `AccessChecker`); a required category is always on, ignores email suppression, cannot be switched off (`InvalidPreference::required()`), and cannot also be a mode or unsubscribable.
